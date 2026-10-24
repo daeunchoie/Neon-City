@@ -1,4 +1,4 @@
-import { CityScene } from './scenes/CityScene.js?v=5';
+import { CityScene } from './scenes/CityScene.js?v=6';
 new Phaser.Game({
   type: Phaser.AUTO, parent: 'game', width: 360, height: 640, backgroundColor: '#05020f',
   pixelArt: true, roundPixels: true, input: { touch: { capture: true } },
