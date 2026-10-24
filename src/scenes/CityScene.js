@@ -26,26 +26,42 @@ export class CityScene extends Phaser.Scene {
     B.forEach((L, i) => {
       this.bG.push(gfx(3)); const n = gfx(4); this.nG.push(n);
       this.tweens.add({ targets: n, alpha: 0.7, duration: 900 + i * 170, yoyo: true, repeat: -1 });
-      this.zone(L.x + L.w / 2, GY - L.h / 2, L.w, L.h, 5, () => this.select('building', i));
     });
     BB_ON.forEach((_, i) => {
       const g = gfx(6); this.bbG.push(g); const r = bbRect(i);
       this.tweens.add({ targets: g, alpha: 0.8, duration: 500 + i * 330, yoyo: true, repeat: -1, hold: 900 });
-      this.zone(r.x + 26, r.y + 32, 60, 76, 7, () => this.select('billboard', i));
     });
     V.forEach((m, i) => {
       const g = this.add.graphics(); this.vG.push(g);
       const c = this.add.container(Phaser.Math.Between(0, W), m.y, [g]).setDepth(8).setScale(m.dir, 1);
-      c.setInteractive(new Phaser.Geom.Rectangle(-26, -20, 52, 40), Phaser.Geom.Rectangle.Contains);
-      c.on('pointerdown', () => this.select('vehicle', i)); this.veh.push(c);
+      this.veh.push(c);
     });
-    this.zone(W / 2, GY / 2, W, GY, 0, () => this.select('sky', 0));
-    this.zone(W / 2, (GY + H) / 2, W, H - GY, 0, () => this.select(null));
+    // One manual hit-test per tap (no per-object zones): deterministic on iOS, forgiving for moving vehicles.
+    this.input.on('pointerdown', p => this.tap(p.x, p.y));
+    // iOS Safari: toolbars collapse/expand without a reliable resize event, so refresh canvas bounds before every touch.
+    const bounds = () => this.scale.updateBounds();
+    ['touchstart', 'mousedown'].forEach(ev => window.addEventListener(ev, bounds, { capture: true, passive: true }));
+    const refresh = () => setTimeout(() => this.scale.refresh(), 300);
+    window.addEventListener('orientationchange', refresh);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', refresh);
     this.hl = gfx(9);
     this.paint();
     UI.init({ save: () => this.save(), reset: () => this.reset(), close: () => this.select(null) });
   }
-  zone(x, y, w, h, depth, fn) { this.add.zone(x, y, w, h).setDepth(depth).setInteractive().on('pointerdown', fn); }
+  tap(x, y) {
+    this.ripple(x, y);
+    const near = (r, pad) => x >= r.x - pad && x <= r.x + r.w + pad && y >= r.y - pad && y <= r.y + r.h + pad;
+    let best = null, bd = 1e9;
+    this.veh.forEach((c, i) => { const d = Math.hypot(c.x - x, c.y - y); if (d < 30 && d < bd) { bd = d; best = ['vehicle', i]; } });
+    if (!best) BB_ON.forEach((_, i) => { if (near(bbRect(i), 6)) best = ['billboard', i]; });
+    if (!best) B.forEach((L, i) => { if (near({ x: L.x, y: GY - L.h, w: L.w, h: L.h }, 2)) best = ['building', i]; });
+    if (!best) best = y < GY ? ['sky', 0] : [null, 0];
+    this.select(...best);
+  }
+  ripple(x, y) {
+    const r = this.add.circle(x, y, 4, 0xffffff, 0).setStrokeStyle(2, 0xffffff, 0.9).setDepth(20);
+    this.tweens.add({ targets: r, scale: 3, alpha: 0, duration: 260, onComplete: () => r.destroy() });
+  }
 
   paint() {
     const c = this.city;
