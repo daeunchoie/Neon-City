@@ -1,6 +1,6 @@
 // DOM panel + buttons. Knows nothing about Phaser.
 const $ = id => document.getElementById(id);
-export function init(h) { $('save').onclick = h.save; $('reset').onclick = h.reset; $('close').onclick = h.close; }
+export function init(h) { $('save').onclick = h.save; $('reset').onclick = h.reset; $('close').onclick = h.close; initIntro(); }
 export const setDirty = d => $('save').classList.toggle('dirty', d);
 export function toast(m) {
   const t = $('toast'); t.textContent = m; t.classList.add('show');
@@ -24,4 +24,13 @@ export function show(title, groups) {
     box.append(lab, row);
   });
   $('panel').classList.remove('hidden');
+}
+
+function initIntro() {
+  const el = $('intro'), K = 'neon-worlds-intro-seen';
+  const open = () => el.classList.remove('hidden');
+  const close = () => { el.classList.add('hidden'); try { localStorage.setItem(K, '1'); } catch (e) {} };
+  $('intro-x').onclick = close; $('intro-ok').onclick = close; $('help').onclick = open;
+  let seen = false; try { seen = !!localStorage.getItem(K); } catch (e) {}
+  if (!seen) open();
 }
