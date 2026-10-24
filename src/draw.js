@@ -1,5 +1,5 @@
 // Pure drawing helpers: (graphics, geometry, style) -> pixels.
-import { PAL, SKIES, SIGNS } from './data.js?v=6';
+import { PAL, SKIES, SIGNS } from './data.js?v=7';
 export const shade = (c, f) => { const m = s => Math.min(255, ((c >> s) & 255) * f | 0); return (m(16) << 16) | (m(8) << 8) | m(0); };
 const mix = (a, b, t) => { const m = s => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t); return (m(16) << 16) | (m(8) << 8) | m(0); };
 const rnd = s => () => (s = s * 16807 % 2147483647) / 2147483647;

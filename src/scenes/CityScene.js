@@ -1,7 +1,7 @@
-import { PAL, STYLES, SIGNS, DESIGNS, MEGA_DESIGNS, CSTYLES, VTYPES, SKIES, defaultCity } from '../data.js?v=6';
-import { loadCity, saveCity, clearCity } from '../storage.js?v=6';
-import * as D from '../draw.js?v=6';
-import * as UI from '../ui.js?v=6';
+import { PAL, STYLES, SIGNS, DESIGNS, MEGA_DESIGNS, CSTYLES, VTYPES, SKIES, defaultCity } from '../data.js?v=7';
+import { loadCity, saveCity, clearCity } from '../storage.js?v=7';
+import * as D from '../draw.js?v=7';
+import * as UI from '../ui.js?v=7';
 
 const W = 360, H = 640, GY = 540;
 // Fixed composition (layout); only styles live in the saved city.
@@ -119,7 +119,7 @@ export class CityScene extends Phaser.Scene {
     this.sel = kind ? { kind, i } : null;
     if (!kind) return UI.hide();
     const r = this.selRect();
-    UI.show(...this.spec(), r.y + r.h / 2 > H / 2); // object in lower half -> panel on top, and vice versa
+    UI.show(...this.spec(), kind !== 'building' && r.y + r.h / 2 > H / 2); // object in lower half -> panel on top, and vice versa
   }
   spec() {
     const { kind, i } = this.sel, c = this.city;

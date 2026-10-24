@@ -1,4 +1,4 @@
-import * as Music from './music.js?v=6';
+import * as Music from './music.js?v=7';
 // DOM panel + buttons. Knows nothing about Phaser.
 const $ = id => document.getElementById(id);
 export function init(h) { $('save').onclick = h.save; $('reset').onclick = h.reset; $('close').onclick = h.close; initIntro(); initMusic(); }
